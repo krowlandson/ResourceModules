@@ -26,7 +26,7 @@ var subnets = [
 
 @description('The Resource Groups to create')
 
-module rsg_web_tier '../../arm/Microsoft.Resources/resourceGroups/deploy.bicep' = {
+module rsg_web_tier  '../../arm/Microsoft.Resources/resourceGroups/deploy.bicep' = {
   name: '${prefix}-web'
   params: {
     name: '${prefix}-web'
@@ -97,7 +97,6 @@ module vnet '../../arm/Microsoft.Network/virtualnetworks/deploy.bicep' = {
 }
 
 // Create DB Tier
-
 module db '../../arm/Microsoft.Sql/managedInstances/deploy.bicep' = {
   name: '${prefix}-db'
   scope: resourceGroup(rsg_data_tier.name)
