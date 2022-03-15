@@ -97,3 +97,19 @@ module vnet '../../arm/Microsoft.Network/virtualnetworks/deploy.bicep' = {
 }
 
 // Create DB Tier
+
+module db '../../arm/Microsoft.Sql/managedInstances/deploy.bicep' = {
+  name: '${prefix}-db'
+  scope: resourceGroup(rsg_data_tier.name)
+  params: {
+    location: location
+    name: '${prefix}-db'
+    administratorLogin: 'admin'
+    administratorLoginPassword: 'p@ssword123'
+    subnetId: vnet.outputs.subnetResourceIds[2]
+  }
+  dependsOn: [
+    vnet
+    rsg_data_tier
+  ]
+}
