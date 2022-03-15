@@ -3,6 +3,8 @@ targetScope = 'subscription'
 param prefix string = 'team5'
 param location string = 'centralus'
 
+var appInsightsName = '${prefix}-app-insights'
+var loganalyticsName = '${prefix}-ws'
 var vnetName = '${prefix}-vnet'
 var vNetAddressPrefixes = [
   '10.0.0.0/16'
@@ -22,6 +24,7 @@ var subnets = [
   }
 ]
 
+var keyVaultName = '${prefix}-keyvault'
 // Create Resource Groups
 
 @description('The Resource Groups to create')
@@ -96,6 +99,17 @@ module vnet '../../arm/Microsoft.Network/virtualnetworks/deploy.bicep' = {
   ]
 }
 
+// Key Vault
+module kv '../../arm/Microsoft.KeyVault/vaults/deploy.bicep' = {
+  scope: resourceGroup(rsg_shared.name)
+  name: 'team5-keyvault'
+  params: {
+    location: location
+    name: keyVaultName
+  }
+}
+
+
 // Create DB Tier
 module db '../../arm/Microsoft.Sql/managedInstances/deploy.bicep' = {
   name: '${prefix}-db'
@@ -110,5 +124,35 @@ module db '../../arm/Microsoft.Sql/managedInstances/deploy.bicep' = {
   dependsOn: [
     vnet
     rsg_data_tier
+  ]
+}
+
+// Create Log Analytics
+
+module logAnalytics '../../arm/Microsoft.OperationalInsights/workspaces/deploy.bicep' = {
+  name: loganalyticsName
+  scope: resourceGroup(rsg_shared.name)
+  params: {
+    location: location
+    name: loganalyticsName
+  }
+  dependsOn: [
+    rsg_shared
+  ]
+}
+
+// Create App Insights
+
+module app_insights '../../arm/Microsoft.Insights/components/deploy.bicep' = {
+  name: appInsightsName
+  scope: resourceGroup(rsg_shared.name)
+  params: {
+    name: appInsightsName
+    location: location
+    workspaceResourceId: logAnalytics.outputs.resourceId
+  }
+  dependsOn: [
+    rsg_shared
+    logAnalytics
   ]
 }
