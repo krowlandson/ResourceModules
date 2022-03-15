@@ -110,16 +110,18 @@ module kv '../../arm/Microsoft.KeyVault/vaults/deploy.bicep' = {
 }
 
 
+
+
 // Create DB Tier
-module db '../../arm/Microsoft.Sql/managedInstances/deploy.bicep' = {
+
+module db '../../arm/Microsoft.Sql/servers/deploy.bicep' = {
   name: '${prefix}-db'
   scope: resourceGroup(rsg_data_tier.name)
   params: {
     location: location
     name: '${prefix}-db'
-    administratorLogin: 'admin'
+    administratorLogin: 'sampleadminloginname'
     administratorLoginPassword: 'p@ssword123'
-    subnetId: vnet.outputs.subnetResourceIds[2]
   }
   dependsOn: [
     vnet
