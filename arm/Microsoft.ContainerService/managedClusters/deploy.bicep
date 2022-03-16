@@ -75,7 +75,15 @@ param aksClusterAdminUsername string = 'azureuser'
 param aksClusterSshPublicKey string = ''
 
 @description('Optional. Information about a service principal identity for the cluster to use for manipulating Azure APIs.')
-param aksServicePrincipalProfile object = {}
+@secure()
+param aksServicePrincipalProfileClientId string = ''
+@secure()
+param aksServicePrincipalProfileClientSecret string = ''
+
+var aksServicePrincipalProfile = {
+  clientId: aksServicePrincipalProfileClientId
+  secret: aksServicePrincipalProfileClientSecret
+}
 
 @description('Optional. The client AAD application ID.')
 param aadProfileClientAppID string = ''

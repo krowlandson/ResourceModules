@@ -3,9 +3,6 @@ targetScope = 'subscription'
 param prefix string = 'scenario2team5'
 param location string = 'centralus'
 
-param aksClientId string
-param aksClientSecret secretstring
-
 var keyVaultName = '${prefix}-keyvault'
 
 // Create Resource Groups
@@ -46,7 +43,7 @@ module kv '../../arm/Microsoft.KeyVault/vaults/deploy.bicep' = {
   }
 }
 
-// kv secrets
+// key Vault Secrets
 module kv_secrets '../../arm/Microsoft.KeyVault/vaults//secrets/deploy.bicep' = {
   scope: resourceGroup('scenario2team5-shared')
   name: '${prefix}-secret'
@@ -57,9 +54,7 @@ module kv_secrets '../../arm/Microsoft.KeyVault/vaults//secrets/deploy.bicep' = 
   }
 }
 
-// Create App Tier
-
-// container registry
+// Container Registry
 module container_registry '../../arm/Microsoft.ContainerRegistry/registries/deploy.bicep' = {
   scope: resourceGroup(rsg_app_tier.name)
   name: '${prefix}-reg'
@@ -69,6 +64,7 @@ module container_registry '../../arm/Microsoft.ContainerRegistry/registries/depl
   }
 }
 
+// AKS Cluster
 module aks '../../arm/Microsoft.ContainerService/managedClusters/deploy.bicep' = {
   scope: resourceGroup(rsg_app_tier.name)
   name: '${prefix}-aks'
@@ -94,16 +90,14 @@ module aks '../../arm/Microsoft.ContainerService/managedClusters/deploy.bicep' =
         ]
       }
     ]
-    aksServicePrincipalProfile: {
-      clientId: aksClientId
-      secret: aksClientSecret
-    }
+    aksServicePrincipalProfileClientId: kvresource.getSecret('aksClientId')
+    aksServicePrincipalProfileClientSecret: kvresource.getSecret('aksClientSecret')
   }
 }
 
 resource kvresource 'Microsoft.KeyVault/vaults@2021-11-01-preview' existing = {
   scope: resourceGroup(rsg_shared.name)
-  name: 'scenario2team5-keyvault'
+  name: '${prefix}-keyvault'
 }
 
 module db '../../arm/Microsoft.Sql/servers/deploy.bicep' = {
