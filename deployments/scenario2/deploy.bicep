@@ -3,6 +3,9 @@ targetScope = 'subscription'
 param prefix string = 'scenario2team5'
 param location string = 'centralus'
 
+param aksClientId string
+param aksClientSecret secretstring
+
 var keyVaultName = '${prefix}-keyvault'
 
 // Create Resource Groups
@@ -81,8 +84,8 @@ module aks '../../arm/Microsoft.ContainerService/managedClusters/deploy.bicep' =
       }
     ]
     aksServicePrincipalProfile: {
-      clientId: '6cdda423-7495-48e4-9141-b4961398d251'
-      secret: 'ZtF7Q~1PEbZt6iyihgmHBfQrYX3T5CFnCUk_2'
+      clientId: aksClientId
+      secret: aksClientSecret
     }
   }
 }
