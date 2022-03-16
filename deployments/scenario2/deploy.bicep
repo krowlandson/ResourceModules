@@ -36,21 +36,10 @@ module rsg_shared '../../arm/Microsoft.Resources/resourceGroups/deploy.bicep' = 
 // Key Vault
 module kv '../../arm/Microsoft.KeyVault/vaults/deploy.bicep' = {
   scope: resourceGroup(rsg_shared.name)
-  name: 'team5-keyvault'
+  name: '${prefix}-keyvault'
   params: {
     location: location
     name: keyVaultName
-  }
-}
-
-// key Vault Secrets
-module kv_secrets '../../arm/Microsoft.KeyVault/vaults//secrets/deploy.bicep' = {
-  scope: resourceGroup('scenario2team5-shared')
-  name: '${prefix}-secret'
-  params: {
-    keyVaultName: keyVaultName
-    name: 'sqlsecret'
-    value: 'C@rm1w0rkshop!!!'
   }
 }
 
@@ -75,11 +64,14 @@ module aks '../../arm/Microsoft.ContainerService/managedClusters/deploy.bicep' =
       {
         name: 'systempool'
         osDiskSizeGB: 0
+        osDiskType: 'Managed'
+        osSKU: 'Ubuntu'
         count: 1
         enableAutoScaling: true
+        scaleSetPriority: 'Regular'
         minCount: 1
         maxCount: 3
-        vmSize: 'standard_d4as_v5'
+        vmSize: 'Standard_D4AS_v5'
         osType: 'Linux'
         storageProfile: 'ManagedDisks'
         type: 'VirtualMachineScaleSets'
