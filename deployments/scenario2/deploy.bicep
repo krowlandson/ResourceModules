@@ -54,3 +54,35 @@ module container_registry '../../arm/Microsoft.ContainerRegistry/registries/depl
     location: location
   }
 }
+
+module aks '../../arm/Microsoft.ContainerService/managedClusters/deploy.bicep' = {
+  scope: resourceGroup(rsg_app_tier.name)
+  name: '${prefix}-aks'
+  params: {
+    name: '${prefix}-aks'
+    location: location
+    primaryAgentPoolProfile: [
+      {
+        name: 'systempool'
+        osDiskSizeGB: 0
+        count: 1
+        enableAutoScaling: true
+        minCount: 1
+        maxCount: 3
+        vmSize: 'standard_d4as_v5'
+        osType: 'Linux'
+        storageProfile: 'ManagedDisks'
+        type: 'VirtualMachineScaleSets'
+        mode: 'System'
+        maxPods: 30
+        availabilityZones: [
+          '1'
+        ]
+      }
+    ]
+    aksServicePrincipalProfile: {
+      clientId: '6cdda423-7495-48e4-9141-b4961398d251'
+      secret: 'ZtF7Q~1PEbZt6iyihgmHBfQrYX3T5CFnCUk_2'
+    }
+  }
+}
