@@ -3,6 +3,9 @@ targetScope = 'subscription'
 param prefix string = 'scenario2team5'
 param location string = 'centralus'
 
+param aksClientId string
+param aksClientSecret secretstring
+
 var keyVaultName = '${prefix}-keyvault'
 
 // Create Resource Groups
@@ -52,6 +55,38 @@ module container_registry '../../arm/Microsoft.ContainerRegistry/registries/depl
   params: {
     name: '${prefix}container'
     location: location
+  }
+}
+
+module aks '../../arm/Microsoft.ContainerService/managedClusters/deploy.bicep' = {
+  scope: resourceGroup(rsg_app_tier.name)
+  name: '${prefix}-aks'
+  params: {
+    name: '${prefix}-aks'
+    location: location
+    primaryAgentPoolProfile: [
+      {
+        name: 'systempool'
+        osDiskSizeGB: 0
+        count: 1
+        enableAutoScaling: true
+        minCount: 1
+        maxCount: 3
+        vmSize: 'standard_d4as_v5'
+        osType: 'Linux'
+        storageProfile: 'ManagedDisks'
+        type: 'VirtualMachineScaleSets'
+        mode: 'System'
+        maxPods: 30
+        availabilityZones: [
+          '1'
+        ]
+      }
+    ]
+    aksServicePrincipalProfile: {
+      clientId: aksClientId
+      secret: aksClientSecret
+    }
   }
 }
 
